@@ -23,3 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 
 enviroment.sh
+.env
