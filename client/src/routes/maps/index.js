@@ -1,12 +1,12 @@
 import React, {Component, Fragment} from 'react'
 import { Route } from 'react-router-dom'
-import HomePage from '../../containers/HomePage'
+import MapTracks from '../../containers/MapTracks'
 
-export default class RouteHomePage extends Component{
+export default class RouteMapTracks extends Component{
     render(){
         return(
             <Fragment>
-                <Route path="/home" component={HomePage}></Route>
+                <Route path="/maptracks" component={MapTracks}></Route>
             </Fragment>
         )
     }
