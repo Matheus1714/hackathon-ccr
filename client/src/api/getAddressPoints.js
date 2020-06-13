@@ -1,13 +1,13 @@
 const axios = require('axios').default
 
-export const getAddressPoints = async  (address) => {
+export const getAddressPoints = async  (address, radius) => {
     try{
-        const res = await axios.get('http://localhost:9090/searchbyaddress', {
-            address
+        const res = await axios.post('http://localhost:9090/searchbyaddress', {
+            address,
+            radius
         })
-        const data = await data.json()
-
-        return data
+        return res.data
+        
     }catch(err){
         console.log(err)
     }
