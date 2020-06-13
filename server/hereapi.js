@@ -21,10 +21,29 @@ class HereAPI {
     async searchGasStationsInRadius(lat,lng,radius){
         let params = {
             apiKey : this.key,
+            in : `circle:${lat},${lng};r=${radius}`,
             q : 'gas station'
         };
 
-        let response = await axios.get(query(this.discoverStr,params) + `&in=circle:${lat},${lng};r=${radius}`);
+        let response = await axios.get(query(this.discoverStr,params));
+
+        let positions = [];
+        for (let item of response.data.items){
+            let gasStation = filterGasStationInfo(item);
+            positions.push(gasStation);
+        }
+        return positions;
+    }
+
+    async searchManyGasStationsFrom(lat,lng,number=20){
+        let params = {
+            apiKey : this.key,
+            at : `${lat},${lng}`,
+            limit : number,
+            q : 'gas station'
+        };
+
+        let response = await axios.get(query(this.discoverStr,params));
 
         let positions = [];
         for (let item of response.data.items){
