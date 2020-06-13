@@ -10,7 +10,7 @@ app.get('/searchbyaddress', async (req,res) => {
     let address = req.query.address;
     let positions = await here.searchGasStationsByAddress(address);
 
-    return req.send(JSON.stringify(positions));
+    return res.send(JSON.stringify(positions));
 });
 
 app.listen(9090, () => {
