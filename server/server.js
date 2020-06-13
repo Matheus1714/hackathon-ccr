@@ -1,11 +1,10 @@
 const express = require('express');
 const HereAPI = require('./hereapi')
 
+let KEY = process.env.HERE_API_KEY;
+
 const app = express();
-
-KEY = process.env.HERE_API_KEY;
-
-const here = HereAPI(KEY);
+const here = new HereAPI(KEY);
 
 app.get('/searchbyaddress', async (req,res) => {
     let address = req.query.address;
