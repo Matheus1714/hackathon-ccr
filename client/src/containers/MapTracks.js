@@ -7,7 +7,8 @@ export default class MapTracks extends Component{
     constructor(props){
         super(props)
             this.state={
-                map: null
+                map: null,
+                data: null
             }
         }
     async componentDidMount(){
@@ -18,29 +19,38 @@ export default class MapTracks extends Component{
 
         const defaultLayers = platform.createDefaultLayers();
 
+        const data = await getAddressPoints("Rua dos Pintassilgos", 5000)
+        this.setState({data})
+
+        let lat = 0
+        let lng = 0
+        let n = data.length
+        for(let i = 0 ; i < n ; i++ ){
+            lat+= data[i].position.lat
+            lng+= data[i].position.lng
+        }
+        lat/=n
+        lng/=n
+
         // Create an instance of the map
         const map = new H.Map(
             this.mapRef.current,
             defaultLayers.vector.normal.map,
             {
                 // This map is centered over Europe
-                center: { lat: 50, lng: 5 },
+                center: { lat, lng},
                 zoom: 15,
                 pixelRatio: window.devicePixelRatio || 1
             }
         );
 
-        const data = await getAddressPoints('Rua de Gedinne')
-        console.log('----------')
-        console.log(data)
-        console.log('----------')
-
-        // const data = new H.map.Marker({
-        //     lat:50,
-        //     lng:5
-        // })
-
-        // map.addObject(data)
+        for(let i = 0 ; i < n ; i++ ){
+            let point = new H.map.Marker({
+                lat:data[i].position.lat,
+                lng:data[i].position.lng
+            })
+            map.addObject(point)
+        }
 
         this.setState({ map });
     }
