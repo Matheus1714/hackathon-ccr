@@ -15,6 +15,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
+/*
+    body: address, [radius]
+    return : list of gas stations near address
+*/
 app.post('/searchbyaddress/', async (req,res) => {
     let address = req.body.address;
     let radius = req.body.radius;
@@ -36,6 +40,29 @@ app.post('/searchbyaddress/', async (req,res) => {
         positions = await here.searchManyGasStationsFrom(lat,lng);
 
     return res.json(positions);
+});
+
+/*
+    body: lat, lng
+    return : list of 5 nearest gas stations
+*/
+app.post('/nearby/', async(req,res) => {
+    let pos = {
+        lat : req.body.lat,
+        lng : req.body.lng
+    }
+
+    let gasStations = await here.searchManyGasStationsFrom(pos.lat,pos.lng,10);
+
+    let destinations = gasStations.map(station => station.position);
+
+    let matrix = await here.routeMatrix([pos],destinations);
+
+    matrix.sort((a,b) => a.summary.costFactor - b.summary.costFactor);
+
+    let nearby = matrix.map(el => gasStations[el.destinationIndex]).slice(0,5);
+
+    return res.json(nearby);
 });
 
 app.listen(9090, () => {
