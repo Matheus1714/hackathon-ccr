@@ -19,8 +19,6 @@ app.post('/searchbyaddress/', async (req,res) => {
     let address = req.body.address;
     let radius = req.body.radius;
 
-    if (!radius) radius = 1000;
-
     let response = await here.geoCode(address);
 
     if (!response.data.items.length) return res.json([]);
@@ -30,7 +28,12 @@ app.post('/searchbyaddress/', async (req,res) => {
     let lat = pos.lat;
     let lng = pos.lng;
 
-    let positions = await here.searchGasStationsInRadius(lat,lng,radius);
+    let positions;
+
+    if (radius)
+        positions = await here.searchGasStationsInRadius(lat,lng,radius);
+    else
+        positions = await here.searchManyGasStationsFrom(lat,lng);
 
     return res.json(positions);
 });
