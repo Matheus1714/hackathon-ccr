@@ -1,56 +1,50 @@
 const axios = require('axios');
 const querystring = require('querystring');
 
-function query (method, params){
-    return method + querystring.stringify(params);
-}
-
 class HereAPI {
     constructor(apiKey){
         this.key = apiKey;
-        this.geoCode = 'https://geocode.search.hereapi.com/v1/geocode?';
-        this.discover = 'https://discover.search.hereapi.com/v1/discover?'
+        this.geoCodeStr = 'https://geocode.search.hereapi.com/v1/geocode?';
+        this.discoverStr = 'https://discover.search.hereapi.com/v1/discover?'
+    }
+
+    async geoCode (address){
+        let params = {
+            apiKey : this.key,
+            q : address
+        };
+        let response = await axios.get(query(this.geoCodeStr,params));
+
+        return response;
     }
 
     async searchGasStationsInRadius(lat,lng,radius){
         let params = {
             apiKey : this.key,
-            in : `circle:${lat},${lng};r=${radius}`,
             q : 'gas station'
         };
 
-        let response = await axios.get(query(this.discover,params));
+        let response = await axios.get(query(this.discoverStr,params) + `&in=circle:${lat},${lng};r=${radius}`);
+
         let positions = [];
         for (let item of response.data.items){
-            positions.push(item.position);
+            let gasStation = filterGasStationInfo(item);
+            positions.push(gasStation);
         }
         return positions;
     }
+}
 
-    async searchGasStationsByAddress(address){
-        let params = {
-            apiKey : this.key,
-            q : address
-        };
-        let response = await axios.get(query(this.geoCode,params));
+function query (method, params){
+    return method + querystring.stringify(params);
+}
 
-        if(!response.data.items.length)
-            return [];
-
-        let pos = response.data.items[0].position;
-
-        params = {
-            at : `${pos.lat},${pos.lng}`,
-            q : 'gas station',
-            apiKey : this.key
-        }
-
-        response = await axios.get(query(this.discover,params));
-        let positions = [];
-        for (let item of response.data.items){
-            positions.push(item.position);
-        }
-        return positions;
+function filterGasStationInfo(item){
+    return {
+        hereID : item.id,
+        title : item.title,
+        position : item.position,
+        rating : Math.round(50*Math.random())/10 // placeholder
     }
 }
 

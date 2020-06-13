@@ -1,16 +1,38 @@
 const express = require('express');
-const HereAPI = require('./hereapi')
+const HereAPI = require('./hereapi');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const cors = require('cors')
 
-let KEY = process.env.HERE_API_KEY;
+let key = process.env.HERE_API_KEY;
+
+const here = new HereAPI(key);
 
 const app = express();
-const here = new HereAPI(KEY);
 
-app.get('/searchbyaddress', async (req,res) => {
-    let address = req.query.address;
-    let positions = await here.searchGasStationsByAddress(address);
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors());
 
-    return res.send(JSON.stringify(positions));
+app.post('/searchbyaddress/', async (req,res) => {
+    let address = req.body.address;
+    let radius = req.body.radius;
+
+    if (!radius) radius = 1000;
+
+    let response = await here.geoCode(address);
+
+    if (!response.data.items.length) return res.json([]);
+
+    let pos = response.data.items[0].position
+
+    let lat = pos.lat;
+    let lng = pos.lng;
+
+    let positions = await here.searchGasStationsInRadius(lat,lng,radius);
+
+    return res.json(positions);
 });
 
 app.listen(9090, () => {
