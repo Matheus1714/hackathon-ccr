@@ -1,5 +1,6 @@
 import React, {Component, createRef} from 'react'
 // import MapTracksComponent from '../components/MapTracksComponent'
+import { getAddressPoints } from '../api/getAddressPoints'
 
 export default class MapTracks extends Component{
     mapRef = createRef()
@@ -9,7 +10,7 @@ export default class MapTracks extends Component{
                 map: null
             }
         }
-    componentDidMount(){
+    async componentDidMount(){
         const H = window.H;
         const platform = new H.service.Platform({
             apikey: "FL2PLn-xzRt2qw8dmRMRtVHupxL1zw3zBK29yafb7NA"
@@ -24,10 +25,22 @@ export default class MapTracks extends Component{
             {
                 // This map is centered over Europe
                 center: { lat: 50, lng: 5 },
-                zoom: 4,
+                zoom: 15,
                 pixelRatio: window.devicePixelRatio || 1
             }
         );
+
+        const data = await getAddressPoints('Rua de Gedinne')
+        console.log('----------')
+        console.log(data)
+        console.log('----------')
+
+        // const data = new H.map.Marker({
+        //     lat:50,
+        //     lng:5
+        // })
+
+        // map.addObject(data)
 
         this.setState({ map });
     }

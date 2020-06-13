@@ -1,8 +1,8 @@
 const axios = require('axios').default
 
-export const getNearbyPost = async  (address) => {
+export const getAddressPoints = async  (address) => {
     try{
-        const res = await axios.get('http://localhost:9090/', {
+        const res = await axios.get('http://localhost:9090/searchbyaddress', {
             address
         })
         const data = await data.json()
