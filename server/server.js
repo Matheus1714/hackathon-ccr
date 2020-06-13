@@ -2,7 +2,7 @@ const express = require('express');
 const HereAPI = require('./hereapi');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const cors = require('cors')
+const cors = require('cors');
 
 let key = process.env.HERE_API_KEY;
 
