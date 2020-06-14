@@ -2,6 +2,7 @@ import React, {Component, createRef} from 'react'
 // import MapTracksComponent from '../components/MapTracksComponent'
 import { getAddressPoints } from '../api/getAddressPoints'
 
+
 class MapTracks extends Component{
     mapRef = createRef()
     constructor(props){
@@ -12,11 +13,6 @@ class MapTracks extends Component{
             }
         }
     async componentDidMount(){
-        console.log(navigator.geolocation)
-        navigator.geolocation.getCurrentPosition((position) => {
-            console.log(position)
-        })
-
         const H = window.H;
         const platform = new H.service.Platform({
             apikey: "FL2PLn-xzRt2qw8dmRMRtVHupxL1zw3zBK29yafb7NA"
