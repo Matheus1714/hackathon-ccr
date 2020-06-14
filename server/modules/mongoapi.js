@@ -1,5 +1,7 @@
 const Client = require('mongodb').MongoClient;
 
+require('./check_environ')(['DB_USERNAME','DB_PASSWORD','DB_HOST','DB_PORT']);
+
 const user = process.env.DB_USERNAME;
 const pass = process.env.DB_PASSWORD;
 const host = process.env.DB_HOST;
@@ -32,6 +34,7 @@ class MongoAPI {
     async addStation(station){
         let client = await this.getConnection();
         if(!client) return null;
+
         let result = await client.db('postoCerto')
             .collection('gasStations')
             .insertOne(station);
@@ -42,6 +45,7 @@ class MongoAPI {
     async addManyStations(stations){
         let client = await this.getConnection();
         if(!client) return null;
+
         let result = await client.db('postoCerto')
             .collection('gasStations')
             .insertMany(stations);
@@ -52,6 +56,7 @@ class MongoAPI {
     async searchManyStations (query){
         let client = await this.getConnection();
         if(!client) return null;
+
         let stations = await client.db('postoCerto')
             .collection('gasStations')
             .find(query);
@@ -62,6 +67,7 @@ class MongoAPI {
     async searchOneStation (query){
         let client = await this.getConnection();
         if(!client) return null;
+
         let station = await client.db('postoCerto')
             .collection('gasStations')
             .findOne(query);
@@ -71,14 +77,15 @@ class MongoAPI {
 
     async updateStation (id,updateQuery){
         let client = await this.getConnection();
-        if(!client) return null;
+        if(!client) return false;
+
         let station = await client.db('postoCerto')
             .collection('gasStations')
-            .update({
+            .updateOne({
                 hereID : id
             }, updateQuery);
 
-        return station;
+        return true;
     }
 }
 
