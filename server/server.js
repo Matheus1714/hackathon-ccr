@@ -32,9 +32,11 @@ app.post('/searchbyaddress/', async (req,res) => {
 
     let response = await here.geoCode(address);
 
-    if(!response) return null;
+    if(!response)
+        return res.json(null);
 
-    if (!response.data.items.length) return res.json([]);
+    if (!response.data.items.length)
+        return res.json([]);
 
     let pos = response.data.items[0].position
 
