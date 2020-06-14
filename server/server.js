@@ -6,6 +6,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const mongo = require('./modules/mongoapi');
 
+require('./modules/check_environ')(['HERE_API_KEY']);
+
 let key = process.env.HERE_API_KEY;
 
 const here = new HereAPI(key);
@@ -29,6 +31,8 @@ app.post('/searchbyaddress/', async (req,res) => {
     if (!address) return res.json(null);
 
     let response = await here.geoCode(address);
+
+    if(!response) return null;
 
     if (!response.data.items.length) return res.json([]);
 
@@ -61,9 +65,15 @@ app.post('/nearby/', async(req,res) => {
 
     let gasStations = await here.searchManyGasStationsFrom(pos.lat,pos.lng,10);
 
+    if(!gasStations)
+        return res.json(null);
+
     let destinations = gasStations.map(station => station.position);
 
     let matrix = await here.routeMatrix([pos],destinations);
+
+    if (!matrix)
+        return res.json(null);
 
     matrix.sort((a,b) => a.summary.costFactor - b.summary.costFactor);
 
@@ -72,35 +82,33 @@ app.post('/nearby/', async(req,res) => {
     return res.json(nearby);
 });
 
+/*
+    body: hereID, ratings [,comment]
+    return
+*/
 app.post('/submitavaliation/', async(req,res) => {
     let avaliation = req.body;
-    if (
-        'hereID' in avaliation &&
-        'ratings' in avaliation
-    ){
-        let station = await mongo.searchOneStation({
-            hereID : avaliation.hereID
-        });
-        for (let r in avaliation.ratings){
-            if (!(r in station.ratings)) continue;
 
-            let mean = station.ratings[r].mean;
-            let count = station.ratings[r].count;
-            let new_mean = (mean*count + avaliation.ratings[r])/count;
+    let station = await mongo.searchOneStation({
+        hereID : avaliation.hereID
+    });
+    for (let r in avaliation.ratings){
+        if (!(r in station.ratings)) continue;
 
-            station.ratings[r].mean = new_mean;
-            station.ratings[r].count ++;
-        }
 
-        let updated = await mongo.updateStation(station.hereID, {
-            $set : {ratings : station.ratings}
-        });
+        let mean = station.ratings[r].mean;
+        let count = station.ratings[r].count;
+        station.ratings[r].count ++;
+        let new_mean = (mean*count + avaliation.ratings[r])/(count+1);
 
-        if(!updated) return res.json(null);
+        station.ratings[r].mean = new_mean;
     }
-    else{
-        return res.json(null);
-    }
+
+    let updated = await mongo.updateStation(station.hereID, {
+        $set : {ratings : station.ratings}
+    });
+
+    return res.json(updated);
 });
 
 app.listen(9090, () => {

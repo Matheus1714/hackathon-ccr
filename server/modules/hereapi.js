@@ -17,9 +17,8 @@ class HereAPI {
             apiKey : this.key,
             q : address
         };
-        let response = await axios.get(query(geoCodeStr,params));
 
-        return response;
+        return await getRequest(geoCodeStr,params);;
     }
 
     async routeMatrix(starts,destinations){
@@ -37,9 +36,9 @@ class HereAPI {
             params['destination' + i] = `geo!${pos.lat},${pos.lng}`;
         }
 
-        let response = await axios.get(query(routeMatrixStr,params));
+        let response = await getRequest(routeMatrixStr,params);
 
-        return response.data.response.matrixEntry;
+        return response ? response.data.response.matrixEntry : null;
     }
 
     async searchGasStationsInRadius(lat,lng,radius){
@@ -49,9 +48,9 @@ class HereAPI {
             q : 'gas station'
         };
 
-        let response = await axios.get(query(discoverStr,params));
+        let response = await getRequest(discoverStr,params);
 
-        return await this.getStationsFromDB(response.data);
+        return reponse ? await this.getStationsFromDB(response.data) : null;
     }
 
     async searchManyGasStationsFrom(lat,lng,number=20){
@@ -62,7 +61,9 @@ class HereAPI {
             q : 'gas station'
         };
 
-        let response = await axios.get(query(discoverStr,params));
+        let response = await getRequest(discoverStr,params);
+
+        if(!response) return null;
 
         return await this.getStationsFromDB(response.data);
     }
@@ -75,6 +76,8 @@ class HereAPI {
         let stations = await mongo.searchManyStations({
             hereID : {$in : ids}
         });
+
+        if (!stations) return null;
 
         stations = await stations.toArray();
 
@@ -94,10 +97,7 @@ class HereAPI {
     }
 }
 
-function query (method, params){
-    return method + querystring.stringify(params);
-}
-
+// Auxiliary functions
 function stationFromDataItem(item){
     station = {
         hereID : item.id,
@@ -127,6 +127,15 @@ function stationFromDataItem(item){
     }
 
     return station
+}
+
+async function getRequest(method, params){
+    try{
+        return await axios.get(method + querystring.stringify(params));
+    }
+    catch (err) {
+        return null;
+    }
 }
 
 module.exports = HereAPI;
