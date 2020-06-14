@@ -79,13 +79,24 @@ class MongoAPI {
         let client = await this.getConnection();
         if(!client) return false;
 
-        let station = await client.db('postoCerto')
+        let result = await client.db('postoCerto')
             .collection('gasStations')
             .updateOne({
                 hereID : id
             }, updateQuery);
 
-        return true;
+        return Boolean(result);
+    }
+
+    async addAvaliation (avaliation){
+        let client = await this.getConnection();
+        if(!client) return false;
+
+        let result = await client.db('postoCerto')
+            .collection('avaliations')
+            .insertOne(avaliation);
+
+        return Boolean(result);
     }
 }
 
