@@ -8,7 +8,9 @@ import Rating from '@material-ui/lab/Rating';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';
+
+import {submitAvaliation} from '../api/submitAvaliation'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -36,90 +38,169 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function RatingPage() {
-  const classes = useStyles();
+    const classes = useStyles();
 
-  const handleClickButton = () => {
-      localStorage.setItem('aaa', {
-          'text':'asdsasa'
-      })
-      console.log(JSON.parse(localStorage.getItem('aaa')))
-  }
-  return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-          <Typography
-            className={classes.postName}
-          >Avalie o Posto</Typography>
-      
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Pátio</Typography>
-            <Rating name="half-rating-patio" defaultValue={0} precision={0.5} />
-        </Box>
+    const [value1, setValue1] = React.useState(2);
+    const [value2, setValue2] = React.useState(2);
+    const [value3, setValue3] = React.useState(2);
+    const [value4, setValue4] = React.useState(2);
+    const [value5, setValue5] = React.useState(2);
+    const [value6, setValue6] = React.useState(2);
+    const [value7, setValue7] = React.useState(2);
+    const [value8, setValue8] = React.useState(2);
+    
+    const handleClickButton = async () => {
+        const hereID = localStorage.getItem('post')
+        const data = await submitAvaliation({
+            hereID: 'here:pds:place:0766gycg-4b77b785e187446b9a1d5ee424d8dafb',
+            ratings: {
+                courtyard: value1,
+                fuelprice: value2,
+                attendance: value3,
+                foodquality: value4,
+                foodprice: value5,
+                security: value6,
+                bath: value7
+            },
+            comment : value8
+        })
+    }
+    return (
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Typography
+                    className={classes.postName}
+                >Avalie o Posto</Typography>
+            
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Pátio</Typography>
+                    <Rating 
+                        name="half-rating-patio" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value1}
+                        onChange={(event, newValue) => {
+                            setValue1(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Preço Combustível</Typography>
-            <Rating name="half-rating-preco" defaultValue={0} precision={0.5} />
-        </Box>
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Preço Combustível</Typography>
+                    <Rating 
+                        name="half-rating-preco" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value2}
+                        onChange={(event, newValue) => {
+                            setValue2(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Atendimento</Typography>
-            <Rating name="half-rating-atendimento" defaultValue={0} precision={0.5} />
-        </Box>
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Atendimento</Typography>
+                    <Rating 
+                        name="half-rating-atendimento" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value3}
+                        onChange={(event, newValue) => {
+                            setValue3(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Qualidade Comida</Typography>
-            <Rating name="half-rating-qualidade" defaultValue={0} precision={0.5} />
-        </Box>
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Qualidade Comida</Typography>
+                    <Rating 
+                        name="half-rating-qualidade" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value4}
+                        onChange={(event, newValue) => {
+                            setValue4(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Preço Comida</Typography>
-            <Rating name="half-rating-comida" defaultValue={0} precision={0.5} />
-        </Box>
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Preço Comida</Typography>
+                    <Rating 
+                        name="half-rating-comida" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value5}
+                        onChange={(event, newValue) => {
+                            setValue5(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Segurança</Typography>
-            <Rating name="half-rating-seguranca" defaultValue={0} precision={0.5} />
-        </Box>
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Segurança</Typography>
+                    <Rating 
+                        name="half-rating-seguranca" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value6}
+                        onChange={(event, newValue) => {
+                            setValue6(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Box component="fieldset" mb={2} borderColor="transparent">
-            <Typography component="legend">Banho</Typography>
-            <Rating name="half-rating-banho" defaultValue={0} precision={0.5} />
-        </Box>
+                <Box component="fieldset" mb={2} borderColor="transparent">
+                    <Typography component="legend">Banho</Typography>
+                    <Rating 
+                        name="half-rating-banho" 
+                        defaultValue={0} 
+                        precision={0.5} 
+                        value={value7}
+                        onChange={(event, newValue) => {
+                            setValue7(newValue);
+                        }}
+                    />
+                </Box>
 
-        <Typography>Comentários Recentes</Typography>
-        
-        <Box className={classes.commit}>
-            <Paper elevation={3}>
-                <Typography>
-                    Ele tem um comida ótima!
-                </Typography>
-            </Paper>
-        </Box>
+                <Typography>Comentários Recentes</Typography>
+                
+                <Box className={classes.commit}>
+                    <Paper elevation={3}>
+                        <Typography>
+                            Ele tem um comida ótima!
+                        </Typography>
+                    </Paper>
+                </Box>
 
-        <Box className={classes.commit}>
-            <Paper elevation={3}>
-                <Typography>
-                    O lugar é confortável!
-                </Typography>
-            </Paper>
-        </Box>
-        <Typography>Comentário</Typography>
-        <TextField placeholder="Campo não obrigátório" />
+                <Box className={classes.commit}>
+                    <Paper elevation={3}>
+                        <Typography>
+                            O lugar é confortável!
+                        </Typography>
+                    </Paper>
+                </Box>
+                <Typography>Comentário</Typography>
+                <Input
+                    placeholder="Campo não obrigátório"
+                    onChange={(event) => {
+                        setValue8(event.target.value)
+                    }}
+                />
 
-        <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            href="/success"
-            onClick={() => handleClickButton() }
-        >
-            Avaliar
-        </Button>
-        
-      </div>
-    </Container>
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    href="/success"
+                    onClick={() => handleClickButton() }
+                >
+                    Avaliar
+                </Button>
+            </div>
+        </Container>
   );
 }

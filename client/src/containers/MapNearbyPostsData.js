@@ -45,24 +45,34 @@ class MapNearbyPostsData extends Component{
                 pixelRatio: window.devicePixelRatio || 1
             }
         );
+        window.addEventListener('resize', () => map.getViewPort().resize());
 
-        // MapEvents enables the event system
-        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
-        // This variable is unused and is present for explanatory purposes
+        const router = platform.getRoutingService();
+        const geocoder = platform.getGeocodingService();
         const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-
-        // Create the default UI components to allow the user to interact with them
-        // This variable is unused
         const ui = H.ui.UI.createDefault(map, defaultLayers);
-
+        
         let n = data.length
+        let points = []
         for(let i = 0 ; i < n ; i++ ){
             let point = new H.map.Marker({
                 lat:data[i].position.lat,
                 lng:data[i].position.lng
             })
-            map.addObject(point);
+            point.setData('Standard Marker')
+            point.addEventListener('tap', (event) => {
+                alert(data[i].position.lat)
+            });
+            point.addEventListener('longpress', (event) => {
+                localStorage.setItem('post', data[i].hereID)
+                window.location.href = `/rating`;
+            });
+            points.push(point)
         }
+        let container = new H.map.Group({
+            objects: points
+        });
+        map.addObject(container)
 
         this.setState({ map });
 

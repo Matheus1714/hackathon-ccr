@@ -128,6 +128,7 @@ app.post('/submitavaliation/', async(req,res) => {
     let station = await mongo.searchOneStation({
         hereID : avaliation.hereID
     });
+
     for (let r in avaliation.ratings){
         if (!(r in station.ratings)) continue;
 
