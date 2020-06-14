@@ -1,13 +1,21 @@
 const axios = require('axios');
 const querystring = require('querystring');
 
+const MongoAPI = require('./mongoapi');
+
 const geoCodeStr = 'https://geocode.search.hereapi.com/v1/geocode?';
 const discoverStr = 'https://discover.search.hereapi.com/v1/discover?';
 const routeMatrixStr = 'https://matrix.route.ls.hereapi.com/routing/7.2/calculatematrix.json?mode=fastest;truck&';
 
+const user = process.env.DB_USERNAME;
+const pass = process.env.DB_PASSWORD;
+const host = process.env.DB_HOST;
+const port = process.env.DB_PORT;
+
 class HereAPI {
     constructor(apiKey){
         this.key = apiKey;
+        this.mongo = new MongoAPI(user,pass,host,port);
     }
 
     async geoCode (address){
@@ -49,7 +57,13 @@ class HereAPI {
 
         let response = await axios.get(query(discoverStr,params));
 
-        return response.data.items.map(item => filterGasStationInfo(item));
+        let ids = response.data.items.map(item => item.id);
+
+        let stations = await this.mongo.searchManyStations({
+            hereID : {$in : ids}
+        });
+
+        return stations.toArray();
     }
 
     async searchManyGasStationsFrom(lat,lng,number=20){
@@ -62,21 +76,18 @@ class HereAPI {
 
         let response = await axios.get(query(discoverStr,params));
 
-        return response.data.items.map(item => filterGasStationInfo(item));;
+        let ids = response.data.items.map(item => item.id);
+
+        let stations = await this.mongo.searchManyStations({
+            hereID : {$in : ids}
+        });
+
+        return stations.toArray();
     }
 }
 
 function query (method, params){
     return method + querystring.stringify(params);
-}
-
-function filterGasStationInfo(item){
-    return {
-        hereID : item.id,
-        title : item.title,
-        position : item.position,
-        rating : Math.round(50*Math.random())/10 // placeholder
-    }
 }
 
 module.exports = HereAPI;
