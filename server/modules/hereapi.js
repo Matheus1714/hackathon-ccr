@@ -1,21 +1,15 @@
 const axios = require('axios');
 const querystring = require('querystring');
 
-const MongoAPI = require('./mongoapi');
+const mongo = require('./mongoapi');
 
 const geoCodeStr = 'https://geocode.search.hereapi.com/v1/geocode?';
 const discoverStr = 'https://discover.search.hereapi.com/v1/discover?';
 const routeMatrixStr = 'https://matrix.route.ls.hereapi.com/routing/7.2/calculatematrix.json?mode=fastest;truck&';
 
-const user = process.env.DB_USERNAME;
-const pass = process.env.DB_PASSWORD;
-const host = process.env.DB_HOST;
-const port = process.env.DB_PORT;
-
 class HereAPI {
     constructor(apiKey){
         this.key = apiKey;
-        this.mongo = new MongoAPI(user,pass,host,port);
     }
 
     async geoCode (address){
@@ -57,13 +51,7 @@ class HereAPI {
 
         let response = await axios.get(query(discoverStr,params));
 
-        let ids = response.data.items.map(item => item.id);
-
-        let stations = await this.mongo.searchManyStations({
-            hereID : {$in : ids}
-        });
-
-        return stations.toArray();
+        return await this.getStationsFromDB(response.data);
     }
 
     async searchManyGasStationsFrom(lat,lng,number=20){
@@ -76,18 +64,69 @@ class HereAPI {
 
         let response = await axios.get(query(discoverStr,params));
 
-        let ids = response.data.items.map(item => item.id);
+        return await this.getStationsFromDB(response.data);
+    }
 
-        let stations = await this.mongo.searchManyStations({
+    async getStationsFromDB(data){
+        let stations0 = data.items.map(stationFromDataItem);
+
+        let ids = stations0.map(st => st.hereID);
+
+        let stations = await mongo.searchManyStations({
             hereID : {$in : ids}
         });
 
-        return stations.toArray();
+        stations = await stations.toArray();
+
+        ids = stations.map(st => st.hereID)
+
+        if(stations.length != stations0.length){
+            for (let i = stations0.length - 1; i >= 0; --i){
+                if (ids.includes(stations0[i].hereID)){
+                    stations0.splice(i,1);
+                }
+            }
+            mongo.addManyStations(stations0);
+            stations.push(...stations0);
+        }
+
+        return stations;
     }
 }
 
 function query (method, params){
     return method + querystring.stringify(params);
+}
+
+function stationFromDataItem(item){
+    station = {
+        hereID : item.id,
+        position : item.position,
+        access : item.access,
+        title : item.title,
+        address : item.address.label,
+        contacts : item.contacts
+    }
+
+    station.ratings = {};
+    station.comments = [];
+    let labels = [
+        'courtyard',
+        'fuelprice',
+        'attendance',
+        'foodquality',
+        'foodprice',
+        'security',
+        'bath'
+    ]
+    for (label of labels){
+        station.ratings[label] = {
+            mean : null,
+            count : 0
+        }
+    }
+
+    return station
 }
 
 module.exports = HereAPI;

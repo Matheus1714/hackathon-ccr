@@ -1,5 +1,5 @@
 /*
-    Script for creating a demo database
+    Script for creating a demo starting database
     Warning : Only run this once
 */
 

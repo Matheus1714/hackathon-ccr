@@ -1,5 +1,10 @@
 const Client = require('mongodb').MongoClient;
 
+const user = process.env.DB_USERNAME;
+const pass = process.env.DB_PASSWORD;
+const host = process.env.DB_HOST;
+const port = process.env.DB_PORT;
+
 class MongoAPI {
     constructor(username, password, host, port){
         this.url = `mongodb://${username}:${password}@${host}:${port}`;
@@ -7,7 +12,7 @@ class MongoAPI {
             useNewUrlParser : true,
             useUnifiedTopology : true
         });
-        this.client.connect((err,client) => {
+        this.client.connect((err) => {
             if (err) throw err;
             else console.log('Connected to database');
         });
@@ -17,16 +22,16 @@ class MongoAPI {
         return new Promise ((resolve,reject) => {
             if (this.client.isConnected())
                 resolve(this.client);
-            else this.client.connect((err,client) => {
-                if (err) throw err;
-                else resolve(client);
+            else this.client.connect((err) => {
+                if (err) resolve(null);
+                else resolve(this.client);
             });
         });
     }
 
     async addStation(station){
-        completeStationProperties(station);
         let client = await this.getConnection();
+        if(!client) return null;
         let result = await client.db('postoCerto')
             .collection('gasStations')
             .insertOne(station);
@@ -34,8 +39,19 @@ class MongoAPI {
         return result.insertedId;
     }
 
+    async addManyStations(stations){
+        let client = await this.getConnection();
+        if(!client) return null;
+        let result = await client.db('postoCerto')
+            .collection('gasStations')
+            .insertMany(stations);
+
+        return result.insertedIds;
+    }
+
     async searchManyStations (query){
         let client = await this.getConnection();
+        if(!client) return null;
         let stations = await client.db('postoCerto')
             .collection('gasStations')
             .find(query);
@@ -45,32 +61,25 @@ class MongoAPI {
 
     async searchOneStation (query){
         let client = await this.getConnection();
+        if(!client) return null;
         let station = await client.db('postoCerto')
             .collection('gasStations')
             .findOne(query);
 
         return station;
     }
-}
 
-function completeStationProperties(station){
-    station.ratings = {};
-    station.comments = [];
-    let labels = [
-        'courtyard',
-        'fuelprice',
-        'attendance',
-        'foodquality',
-        'foodprice',
-        'security',
-        'bath'
-    ]
-    for (label of labels){
-        stations[label] = {
-            rating : null,
-            count : 0
-        }
+    async updateStation (id,updateQuery){
+        let client = await this.getConnection();
+        if(!client) return null;
+        let station = await client.db('postoCerto')
+            .collection('gasStations')
+            .update({
+                hereID : id
+            }, updateQuery);
+
+        return station;
     }
 }
 
-module.exports = MongoAPI;
+module.exports = new MongoAPI(user,pass,host,port);

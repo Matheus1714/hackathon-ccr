@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const morgan = require('morgan');
+const mongo = require('./modules/mongoapi');
 
 let key = process.env.HERE_API_KEY;
 
@@ -24,6 +25,8 @@ app.use(morgan('dev'));
 app.post('/searchbyaddress/', async (req,res) => {
     let address = req.body.address;
     let radius = req.body.radius;
+
+    if (!address) return res.json(null);
 
     let response = await here.geoCode(address);
 
@@ -54,6 +57,8 @@ app.post('/nearby/', async(req,res) => {
         lng : req.body.lng
     }
 
+    if (!(pos.lat && pos.lng)) return res.json(null);
+
     let gasStations = await here.searchManyGasStationsFrom(pos.lat,pos.lng,10);
 
     let destinations = gasStations.map(station => station.position);
@@ -65,6 +70,37 @@ app.post('/nearby/', async(req,res) => {
     let nearby = matrix.map(el => gasStations[el.destinationIndex]).slice(0,5);
 
     return res.json(nearby);
+});
+
+app.post('/submitavaliation/', async(req,res) => {
+    let avaliation = req.body;
+    if (
+        'hereID' in avaliation &&
+        'ratings' in avaliation
+    ){
+        let station = await mongo.searchOneStation({
+            hereID : avaliation.hereID
+        });
+        for (let r in avaliation.ratings){
+            if (!(r in station.ratings)) continue;
+
+            let mean = station.ratings[r].mean;
+            let count = station.ratings[r].count;
+            let new_mean = (mean*count + avaliation.ratings[r])/count;
+
+            station.ratings[r].mean = new_mean;
+            station.ratings[r].count ++;
+        }
+
+        let updated = await mongo.updateStation(station.hereID, {
+            $set : {ratings : station.ratings}
+        });
+
+        if(!updated) return res.json(null);
+    }
+    else{
+        return res.json(null);
+    }
 });
 
 app.listen(9090, () => {
