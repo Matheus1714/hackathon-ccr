@@ -1,11 +1,13 @@
 const axios = require('axios');
 const querystring = require('querystring');
 
+const geoCodeStr = 'https://geocode.search.hereapi.com/v1/geocode?';
+const discoverStr = 'https://discover.search.hereapi.com/v1/discover?';
+const routeMatrixStr = 'https://matrix.route.ls.hereapi.com/routing/7.2/calculatematrix.json?mode=fastest;truck&';
+
 class HereAPI {
     constructor(apiKey){
         this.key = apiKey;
-        this.geoCodeStr = 'https://geocode.search.hereapi.com/v1/geocode?';
-        this.discoverStr = 'https://discover.search.hereapi.com/v1/discover?'
     }
 
     async geoCode (address){
@@ -13,9 +15,29 @@ class HereAPI {
             apiKey : this.key,
             q : address
         };
-        let response = await axios.get(query(this.geoCodeStr,params));
+        let response = await axios.get(query(geoCodeStr,params));
 
         return response;
+    }
+
+    async routeMatrix(starts,destinations){
+        let params = {
+            apiKey : this.key
+        }
+
+        for (let i in starts){
+            let pos = starts[i];
+            params['start' + i] = `geo!${pos.lat},${pos.lng}`;
+        }
+
+        for (let i in destinations){
+            let pos = destinations[i];
+            params['destination' + i] = `geo!${pos.lat},${pos.lng}`;
+        }
+
+        let response = await axios.get(query(routeMatrixStr,params));
+
+        return response.data.response.matrixEntry;
     }
 
     async searchGasStationsInRadius(lat,lng,radius){
@@ -25,14 +47,9 @@ class HereAPI {
             q : 'gas station'
         };
 
-        let response = await axios.get(query(this.discoverStr,params));
+        let response = await axios.get(query(discoverStr,params));
 
-        let positions = [];
-        for (let item of response.data.items){
-            let gasStation = filterGasStationInfo(item);
-            positions.push(gasStation);
-        }
-        return positions;
+        return response.data.items.map(item => filterGasStationInfo(item));
     }
 
     async searchManyGasStationsFrom(lat,lng,number=20){
@@ -43,14 +60,9 @@ class HereAPI {
             q : 'gas station'
         };
 
-        let response = await axios.get(query(this.discoverStr,params));
+        let response = await axios.get(query(discoverStr,params));
 
-        let positions = [];
-        for (let item of response.data.items){
-            let gasStation = filterGasStationInfo(item);
-            positions.push(gasStation);
-        }
-        return positions;
+        return response.data.items.map(item => filterGasStationInfo(item));;
     }
 }
 

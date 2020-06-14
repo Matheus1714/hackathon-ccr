@@ -24,3 +24,4 @@ yarn-error.log*
 
 enviroment.sh
 .env
+db/volumes/*
