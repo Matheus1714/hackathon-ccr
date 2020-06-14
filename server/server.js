@@ -130,7 +130,8 @@ app.post('/submitavaliation/', async(req,res) => {
 */
 app.post('/autocomplete', async (req,res) => {
     if (!req.body.string) return null;
-    return await here.autocomplete(req.body.string);
+    let suggestions = await here.autoComplete(req.body.string);
+    return res.json(suggestions);
 });
 
 app.listen(9090, () => {
