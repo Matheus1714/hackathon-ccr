@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/styles';
 import ComboxBox from '../components/ComboBox'
 import Tabs from '@material-ui/core/Tabs';
+import {getNearbyPost} from '../api/getNearbyPosts'
 import Tab from '@material-ui/core/Tab';
 
 const styles = theme => ({
@@ -44,19 +45,29 @@ class MapNearbyPostsData extends Component{
         this.state={
             map: null,
             data_autocomplete: null,
-            value: ''
+            value: '',
+            nearby: true,
+            balloon: {
+                event: null,
+                data: null
+            },
+            pos: {
+                lat: null,
+                lng: null
+            },
         }
         this.handleChange = this.handleChange.bind(this);
-        this.tabLocation = this.tabLocation.bind(this)
     }
     handleChange = (event, newValue) => {
         this.setState({value: newValue})
         this.props.history.push(newValue);
     };
-    tabLocation = (classes) => {
-        
-    }
-    async componentDidMount(){
+    async mapHender(lat, lng){
+        const data = await getNearbyPost({ 
+            "lat": lat, 
+            "lng": lng 
+        })
+
         const H = window.H;
         const platform = new H.service.Platform({
             apikey: "FL2PLn-xzRt2qw8dmRMRtVHupxL1zw3zBK29yafb7NA"
@@ -69,8 +80,8 @@ class MapNearbyPostsData extends Component{
             defaultLayers.vector.normal.map,
             {
                 center: { 
-                    "lat": -3.7928894, 
-                    "lng": -38.495494099999995 
+                    "lat": lat, 
+                    "lng": lng
                 },
                 zoom: 15,
                 pixelRatio: window.devicePixelRatio || 1
@@ -86,15 +97,74 @@ class MapNearbyPostsData extends Component{
         // This variable is unused
         const ui = H.ui.UI.createDefault(map, defaultLayers);
 
-        this.setState({ map });
+        let group = new H.map.Group();
 
+        map.addObject(group);
+
+        group.addEventListener('tap', function (evt) {
+            let bubble =  new H.ui.InfoBubble(evt.target.getGeometry(), {
+                content: evt.target.getData()
+            });
+            ui.addBubble(bubble);
+        }, false);
+        console.log(data)
+        let n = data.length
+        let points = []
+        for(let i = 0 ; i < n ; i++ ){
+            let point = new H.map.Marker({
+                lat:data[i].position.lat,
+                lng:data[i].position.lng
+            })
+            points.push(point)
+            this.addMarkerToGroup(group, {
+                lat:data[i].position.lat,
+                lng:data[i].position.lng
+            },
+            `
+                <center>
+                    <p>${data[i].title}</p>
+                    <span>Pátio ${data[i].ratings.courtyard.mean || 0}</span>
+                    <span>Preço Combustível ${data[i].ratings.fuelprice.mean || 0 }</span>
+                    <span>Atendimento ${data[i].ratings.attendance.mean || 0}</span>
+                    <span>Qualidade Comida ${data[i].ratings.foodquality.mean || 0}</span>
+                    <span>Preço Comida ${data[i].ratings.foodprice.mean || 0}</span>
+                    <span>Segurança ${data[i].ratings.security.mean || 0}</span>
+                    <span>Banho ${data[i].ratings.bath.mean || 0}</span>
+                </center>
+            `
+            , H);
+            
+        }
+        let container = new H.map.Group({
+            objects: points
+        });
+
+        map.addObject(container)
+
+        this.setState({ map });
+    }
+    componentDidMount(){
+        navigator.geolocation.getCurrentPosition(position => {
+            this.mapHender(position.coords.latitude, position.coords.longitude)
+            this.setState({ pos: {
+                lat: position.coords.latitude, 
+                lng: position.coords.longitude
+            }});
+            }, err => console.log(err)
+        );
     }
     componentWillUnmount() {
         this.state.map.dispose();
     }
+    addMarkerToGroup(group, coordinate, html, H) {
+        var marker = new H.map.Marker(coordinate);
+        // add custom data to the marker
+        marker.setData(html);
+        group.addObject(marker);
+    }
     render(){
         const { classes } = this.props;
-        return( 
+        return(
             <Container component="main" maxWidth="xs">
                 <CssBaseline  />
                     <div className={classes.paper} >

@@ -12,7 +12,7 @@ export default class RouteMapTracks extends Component{
                 <Route path="/success" component={Success} />
                 <Route path="/rating" component={RatingPage} />
                 <Route path="/mapnearbyposts" component={MapNearbyPosts} />
-                <Route path="/mapsearch" component={MapSearchPage} />
+                <Route path="/home" component={MapSearchPage} />
             </Fragment>
         )
     }

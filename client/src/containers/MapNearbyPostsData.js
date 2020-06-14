@@ -23,7 +23,8 @@ class MapNearbyPostsData extends Component{
         super(props)
         this.state={
             data: null,
-            map: null
+            map: null,
+            mapSearch: true
         }
     }
     async componentDidMount(){
@@ -46,11 +47,6 @@ class MapNearbyPostsData extends Component{
             }
         );
         window.addEventListener('resize', () => map.getViewPort().resize());
-
-        const router = platform.getRoutingService();
-        const geocoder = platform.getGeocodingService();
-        const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-        const ui = H.ui.UI.createDefault(map, defaultLayers);
         
         let n = data.length
         let points = []
@@ -80,6 +76,7 @@ class MapNearbyPostsData extends Component{
     componentWillUnmount() {
         this.state.map.dispose();
     }
+    
     render(){
         const { classes } = this.props;
         return( 
@@ -90,7 +87,6 @@ class MapNearbyPostsData extends Component{
                     </div>
             </Container>
         )
-            
     }
 }
 
