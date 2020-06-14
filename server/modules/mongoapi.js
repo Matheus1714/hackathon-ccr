@@ -1,11 +1,14 @@
 const Client = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
+const {createHash} = require('crypto');
 
-require('./check_environ')(['DB_USERNAME','DB_PASSWORD','DB_HOST','DB_PORT']);
+require('./check_environ')(['DB_USERNAME','DB_PASSWORD','DB_HOST','DB_PORT','HASH_SECRET']);
 
 const user = process.env.DB_USERNAME;
 const pass = process.env.DB_PASSWORD;
 const host = process.env.DB_HOST;
 const port = process.env.DB_PORT;
+const secret = process.env.HASH_SECRET;
 
 class MongoAPI {
     constructor(username, password, host, port){
@@ -98,6 +101,53 @@ class MongoAPI {
 
         return Boolean(result);
     }
+
+    async findUser (token) {
+        let client = await this.getConnection();
+        if(!client) return null;
+
+        let user = await client.db('postoCerto')
+            .collection('users')
+            .findOne({
+                _id : ObjectID(token)
+            });
+
+        return user;
+    }
+
+    async login (username, password){
+        let client = await this.getConnection();
+        if(!client) return null;
+
+        let user = await client.db('postoCerto')
+            .collection('users')
+            .findOne({
+                user : username,
+                pass : hash(password)
+            });
+
+        return user;
+    }
+
+    async register (username, password){
+        let client = await this.getConnection();
+        if(!client) return null;
+
+        let result = await client.db('postoCerto')
+            .collection('users')
+            .insertOne({
+                user : username,
+                pass : hash(password),
+                avaliations : []
+            });
+
+        return result.insertedId;
+    }
+}
+
+function hash (str){
+    let hash = createHash('sha256');
+    return hash.update(secret + str).digest('hex');
 }
 
 module.exports = new MongoAPI(user,pass,host,port);
