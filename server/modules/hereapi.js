@@ -6,6 +6,7 @@ const mongo = require('./mongoapi');
 const geoCodeStr = 'https://geocode.search.hereapi.com/v1/geocode?';
 const discoverStr = 'https://discover.search.hereapi.com/v1/discover?';
 const routeMatrixStr = 'https://matrix.route.ls.hereapi.com/routing/7.2/calculatematrix.json?mode=fastest;truck&';
+const autoCompleteStr = 'https://autocomplete.geocoder.ls.hereapi.com/6.2/suggest.json?'
 
 class HereAPI {
     constructor(apiKey){
@@ -19,6 +20,18 @@ class HereAPI {
         };
 
         return await getRequest(geoCodeStr,params);;
+    }
+
+    async autoComplete (string){
+        let params = {
+            apiKey : this.key,
+            query : string,
+            maxresults : 5
+        }
+
+        let response = await getRequest(autoCompleteStr, params);
+
+        return response ? response.data.suggestions : null;
     }
 
     async routeMatrix(starts,destinations){

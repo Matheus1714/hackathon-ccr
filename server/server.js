@@ -52,7 +52,7 @@ app.post('/searchbyaddress/', async (req,res) => {
 });
 
 /*
-    body: lat, lng
+    body : lat, lng
     return : list of 5 nearest gas stations
 */
 app.post('/nearby/', async(req,res) => {
@@ -84,7 +84,7 @@ app.post('/nearby/', async(req,res) => {
 
 /*
     body: hereID, ratings [,comment]
-    return
+    return : true if the submition worked
 */
 app.post('/submitavaliation/', async(req,res) => {
     let avaliation = req.body;
@@ -122,6 +122,17 @@ app.post('/submitavaliation/', async(req,res) => {
     return res.json(updated);
 });
 
+/*
+    body : string
+    return : list of 5 or less suggestions
+*/
+app.post('/autocomplete', async (req,res) => {
+    if (!req.body.string) return null;
+    return await here.autocomplete(req.body.string);
+});
+
 app.listen(9090, () => {
     console.log('Server Started');
 });
+
+here.autoComplete('Rua dos Pintassilgos');
