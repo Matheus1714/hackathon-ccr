@@ -3,6 +3,7 @@ const HereAPI = require('./modules/hereapi');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const morgan = require('morgan');
 
 let key = process.env.HERE_API_KEY;
 
@@ -14,6 +15,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(morgan('dev'));
 
 /*
     body: address, [radius]
