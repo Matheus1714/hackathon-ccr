@@ -113,8 +113,6 @@ app.post('/nearby/', async(req,res) => {
 
     nearby = nearby.slice(0,10);
 
-    console.log(nearby.map(el => el.address));
-
     return res.json(nearby);
 });
 
@@ -128,6 +126,8 @@ app.post('/submitavaliation/', async(req,res) => {
     let station = await mongo.searchOneStation({
         hereID : avaliation.hereID
     });
+
+    if (!station) return null;
 
     for (let r in avaliation.ratings){
         if (!(r in station.ratings)) continue;
@@ -166,10 +166,67 @@ app.post('/submitavaliation/', async(req,res) => {
     body : string
     return : list of 5 or less suggestions
 */
-app.post('/autocomplete', async (req,res) => {
+app.post('/autocomplete/', async (req,res) => {
     if (!req.body.string) return null;
     let suggestions = await here.autoComplete(req.body.string);
+
+    suggestions = suggestions.map(el => el.label);
+
     return res.json(suggestions);
+});
+
+/*
+    body : username, password
+    return : bool indicating successful login
+*/
+app.post('/login/', async (req,res) => {
+    let user = await mongo.login(req.body.username, req.body.password);
+
+    if (user){
+        let token = user.__id.toString();
+        res.cookie('c_user', token, {
+            httpOnly : true,
+            expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
+        });
+    }
+    else return res.json(false);
+
+    return res.json(true);
+});
+
+/*
+    body : username, password
+    return : bool indicating successful register
+*/
+app.post('/register/', async (req,res) => {
+    let userId = await mongo.register(req.body.username, req.body.password);
+    let token = userId.toString();
+
+    if (userId){
+        res.cookie('c_user', token, {
+            httpOnly : true,
+            expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
+        });
+    }
+    else return res.json(false);
+
+    return res.json(true);
+});
+
+/*
+    body : empty
+    return : bool indicating if user is logged in
+*/
+app.post('/isloggedin/', async(req, res) => {
+    if (req.cookies.c_user){
+        res.cookie('c_user', req.cookies.c_user, {
+            httpOnly : true,
+            expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
+        });
+    }
+    else return res.json(false);
+
+    return res.json(true);
 });
 
 app.listen(9090, () => {
