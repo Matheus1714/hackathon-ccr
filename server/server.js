@@ -104,9 +104,20 @@ app.post('/submitavaliation/', async(req,res) => {
         station.ratings[r].mean = new_mean;
     }
 
-    let updated = await mongo.updateStation(station.hereID, {
+    let updateQuery = {
         $set : {ratings : station.ratings}
-    });
+    };
+
+    if(avaliation.comment){
+        updateQuery.$push = {
+            comment : {
+                $each : [avaliation.comment],
+                $position : 0
+            }
+        }
+    }
+
+    let updated = await mongo.updateStation(station.hereID, updateQuery);
 
     return res.json(updated);
 });
