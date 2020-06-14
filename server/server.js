@@ -22,7 +22,11 @@ app.use(morgan('dev'));
 
 /*
     body: address, [radius]
-    return : list of gas stations near address
+    return : {
+        pivot : searched address,
+        [nearby] : if pivot is not a gas station, a list of the closest gas stations
+    }
+}
 */
 app.post('/searchbyaddress/', async (req,res) => {
     let address = req.body.address;
@@ -36,26 +40,43 @@ app.post('/searchbyaddress/', async (req,res) => {
         return res.json(null);
 
     if (!response.data.items.length)
-        return res.json([]);
+        return res.json({});
 
-    let pos = response.data.items[0].position
+    let first = response.data.items[0];
 
-    let lat = pos.lat;
-    let lng = pos.lng;
+    let lat = first.position.lat;
+    let lng = first.position.lng;
 
-    let positions;
+    let stations;
 
     if (radius)
-        positions = await here.searchGasStationsInRadius(lat,lng,radius);
+        stations = await here.searchGasStationsInRadius(lat,lng,radius);
     else
-        positions = await here.searchManyGasStationsFrom(lat,lng);
+        stations = await here.searchManyGasStationsFrom(lat,lng);
 
-    return res.json(positions);
+    let res_json;
+
+    if (first.id === stations[0].hereID){
+        res_json = {
+            pivot : stations[0]
+        };
+    }
+    else {
+        res_json = {
+            pivot : {
+                address : first.address.label,
+                position : first.position
+            },
+            nearby : stations
+        };
+    }
+
+    return res.json(res_json);
 });
 
 /*
     body : lat, lng
-    return : list of 5 nearest gas stations
+    return : list of 10 nearest gas stations from (lat,lng) considering truck traveling
 */
 app.post('/nearby/', async(req,res) => {
     let pos = {
@@ -65,7 +86,7 @@ app.post('/nearby/', async(req,res) => {
 
     if (!(pos.lat && pos.lng)) return res.json(null);
 
-    let gasStations = await here.searchManyGasStationsFrom(pos.lat,pos.lng,10);
+    let gasStations = await here.searchManyGasStationsFrom(pos.lat,pos.lng);
 
     if(!gasStations)
         return res.json(null);
@@ -79,7 +100,20 @@ app.post('/nearby/', async(req,res) => {
 
     matrix.sort((a,b) => a.summary.costFactor - b.summary.costFactor);
 
-    let nearby = matrix.map(el => gasStations[el.destinationIndex]).slice(0,5);
+    let nearby = matrix.map(el => gasStations[el.destinationIndex]);
+
+    let unique = [];
+
+    for (let i = nearby.length - 1; i >= 0; --i){
+        if (unique.includes(nearby[i].address)){
+            nearby.splice(i,1);
+        }
+        else unique.push(nearby[i].address);
+    }
+
+    nearby = nearby.slice(0,10);
+
+    console.log(nearby.map(el => el.address));
 
     return res.json(nearby);
 });
@@ -110,7 +144,7 @@ app.post('/submitavaliation/', async(req,res) => {
         $set : {ratings : station.ratings}
     };
 
-    mongo.addAvaliation(avaliation);
+    mongo.addAvaliation(avaliation, req.cookies.c_user);
 
     if(avaliation.comment){
         updateQuery.$push = {

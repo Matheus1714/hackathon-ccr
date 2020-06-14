@@ -88,7 +88,7 @@ class MongoAPI {
         return Boolean(result);
     }
 
-    async addAvaliation (avaliation){
+    async addAvaliation (avaliation,userToken){
         let client = await this.getConnection();
         if(!client) return false;
 

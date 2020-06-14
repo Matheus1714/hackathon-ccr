@@ -19,7 +19,7 @@ class HereAPI {
             q : address
         };
 
-        return await getRequest(geoCodeStr,params);;
+        return await getRequest(geoCodeStr,params);
     }
 
     async autoComplete (string){
