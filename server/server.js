@@ -1,5 +1,5 @@
 const express = require('express');
-const HereAPI = require('./hereapi');
+const HereAPI = require('./modules/hereapi');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
