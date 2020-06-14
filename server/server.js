@@ -134,5 +134,3 @@ app.post('/autocomplete', async (req,res) => {
 app.listen(9090, () => {
     console.log('Server Started');
 });
-
-here.autoComplete('Rua dos Pintassilgos');
