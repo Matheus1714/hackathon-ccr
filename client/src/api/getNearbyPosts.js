@@ -1,13 +1,9 @@
 const axios = require('axios').default
 
-export const getNearbyPost = async  (address) => {
+export const getNearbyPost = async  (position) => {
     try{
-        const res = await axios.get('http://localhost:9090/', {
-            address
-        })
-        const data = await data.json()
-
-        return data
+        const res = await axios.post('http://localhost:9090/nearby/', position)
+        return res.data
     }catch(err){
         console.log(err)
     }
