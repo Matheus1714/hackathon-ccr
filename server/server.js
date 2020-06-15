@@ -189,9 +189,14 @@ app.post('/login/', async (req,res) => {
             expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
         });
     }
-    else return res.json(false);
+    else return res.json({
+        succes : false,
+        reason : 'Usuário não encontrado'
+    });
 
-    return res.json(true);
+    return res.json({
+        success : true
+    });
 });
 
 /*
@@ -199,6 +204,15 @@ app.post('/login/', async (req,res) => {
     return : bool indicating successful register
 */
 app.post('/register/', async (req,res) => {
+    let user = await mongo.findUser({
+        user : req.body.username
+    });
+
+    if (user) return res.json({
+        success : false,
+        reason : 'Usuário já existente'
+    });
+
     let userId = await mongo.register(req.body.username, req.body.password);
     let token = userId.toString();
 
@@ -208,7 +222,9 @@ app.post('/register/', async (req,res) => {
             expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
         });
     }
-    else return res.json(false);
+    else return res.json({
+        success : true
+    });
 
     return res.json(true);
 });
@@ -219,6 +235,7 @@ app.post('/register/', async (req,res) => {
 */
 app.post('/isloggedin/', async(req, res) => {
     if (req.cookies.c_user){
+        // update remember login time
         res.cookie('c_user', req.cookies.c_user, {
             httpOnly : true,
             expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
