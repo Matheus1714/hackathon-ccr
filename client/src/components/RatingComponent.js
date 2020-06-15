@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import Input from '@material-ui/core/Input';
+import Grid from '@material-ui/core/Grid';
 
 import {submitAvaliation} from '../api/submitAvaliation'
 
@@ -72,97 +73,141 @@ export default function RatingPage() {
                 <Typography
                     className={classes.postName}
                 >Avalie o Posto</Typography>
-            
+
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Pátio</Typography>
-                    <Rating 
-                        name="half-rating-patio" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value1}
-                        onChange={(event, newValue) => {
-                            setValue1(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Pátio</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <Rating 
+                            name="half-rating-patio" 
+                            defaultValue={0} 
+                            precision={0.5} 
+                            value={value1}
+                            onChange={(event, newValue) => {
+                                setValue1(newValue);
+                            }}
+                        />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Preço Combustível</Typography>
-                    <Rating 
-                        name="half-rating-preco" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value2}
-                        onChange={(event, newValue) => {
-                            setValue2(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Preço Combustível</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Rating 
+                                name="half-rating-preco" 
+                                defaultValue={0} 
+                                precision={0.5} 
+                                value={value2}
+                                onChange={(event, newValue) => {
+                                    setValue2(newValue);
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Atendimento</Typography>
-                    <Rating 
-                        name="half-rating-atendimento" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value3}
-                        onChange={(event, newValue) => {
-                            setValue3(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Atendimento</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Rating 
+                                name="half-rating-atendimento" 
+                                defaultValue={0} 
+                                precision={0.5} 
+                                value={value3}
+                                onChange={(event, newValue) => {
+                                    setValue3(newValue);
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Qualidade Comida</Typography>
-                    <Rating 
-                        name="half-rating-qualidade" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value4}
-                        onChange={(event, newValue) => {
-                            setValue4(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Preço da Comida</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Rating 
+                                name="half-rating-preco" 
+                                defaultValue={0} 
+                                precision={0.5} 
+                                value={value4}
+                                onChange={(event, newValue) => {
+                                    setValue4(newValue);
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Preço Comida</Typography>
-                    <Rating 
-                        name="half-rating-comida" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value5}
-                        onChange={(event, newValue) => {
-                            setValue5(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Qualidade Comida</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Rating 
+                                name="half-rating-qualidade" 
+                                defaultValue={0} 
+                                precision={0.5} 
+                                value={value5}
+                                onChange={(event, newValue) => {
+                                    setValue5(newValue);
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Segurança</Typography>
-                    <Rating 
-                        name="half-rating-seguranca" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value6}
-                        onChange={(event, newValue) => {
-                            setValue6(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Segurança</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Rating 
+                                name="half-rating-seguranca" 
+                                defaultValue={0} 
+                                precision={0.5} 
+                                value={value6}
+                                onChange={(event, newValue) => {
+                                    setValue6(newValue);
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 <Box component="fieldset" mb={2} borderColor="transparent">
-                    <Typography component="legend">Banho</Typography>
-                    <Rating 
-                        name="half-rating-banho" 
-                        defaultValue={0} 
-                        precision={0.5} 
-                        value={value7}
-                        onChange={(event, newValue) => {
-                            setValue7(newValue);
-                        }}
-                    />
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Typography component="legend" >Banho</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Rating 
+                                name="half-rating-banho" 
+                                defaultValue={0} 
+                                precision={0.5} 
+                                value={value7}
+                                onChange={(event, newValue) => {
+                                    setValue7(newValue);
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
+
+                
 
                 <Typography>Comentários Recentes</Typography>
                 
