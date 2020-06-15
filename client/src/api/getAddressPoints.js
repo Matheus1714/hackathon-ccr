@@ -8,7 +8,7 @@ export const getAddressPoints = async  (address, radius) => {
             radius
         })
         return res.data
-        
+
     }catch(err){
         console.log(err)
     }

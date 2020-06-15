@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function RatingPage() {
+export default function RatingPage(props) {
     const classes = useStyles();
 
     const [value1, setValue1] = React.useState(2);
@@ -49,7 +49,7 @@ export default function RatingPage() {
     const [value6, setValue6] = React.useState(2);
     const [value7, setValue7] = React.useState(2);
     const [value8, setValue8] = React.useState(2);
-    
+
     const handleClickButton = async () => {
         const hereID = localStorage.getItem('post')
         const data = await submitAvaliation({
@@ -80,10 +80,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Pátio</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                        <Rating 
-                            name="half-rating-patio" 
-                            defaultValue={0} 
-                            precision={0.5} 
+                        <Rating
+                            name="half-rating-patio"
+                            defaultValue={0}
+                            precision={0.5}
                             value={value1}
                             onChange={(event, newValue) => {
                                 setValue1(newValue);
@@ -99,10 +99,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Preço Combustível</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Rating 
-                                name="half-rating-preco" 
-                                defaultValue={0} 
-                                precision={0.5} 
+                            <Rating
+                                name="half-rating-preco"
+                                defaultValue={0}
+                                precision={0.5}
                                 value={value2}
                                 onChange={(event, newValue) => {
                                     setValue2(newValue);
@@ -118,10 +118,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Atendimento</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Rating 
-                                name="half-rating-atendimento" 
-                                defaultValue={0} 
-                                precision={0.5} 
+                            <Rating
+                                name="half-rating-atendimento"
+                                defaultValue={0}
+                                precision={0.5}
                                 value={value3}
                                 onChange={(event, newValue) => {
                                     setValue3(newValue);
@@ -137,10 +137,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Preço da Comida</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Rating 
-                                name="half-rating-preco" 
-                                defaultValue={0} 
-                                precision={0.5} 
+                            <Rating
+                                name="half-rating-preco"
+                                defaultValue={0}
+                                precision={0.5}
                                 value={value4}
                                 onChange={(event, newValue) => {
                                     setValue4(newValue);
@@ -156,10 +156,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Qualidade Comida</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Rating 
-                                name="half-rating-qualidade" 
-                                defaultValue={0} 
-                                precision={0.5} 
+                            <Rating
+                                name="half-rating-qualidade"
+                                defaultValue={0}
+                                precision={0.5}
                                 value={value5}
                                 onChange={(event, newValue) => {
                                     setValue5(newValue);
@@ -175,10 +175,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Segurança</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Rating 
-                                name="half-rating-seguranca" 
-                                defaultValue={0} 
-                                precision={0.5} 
+                            <Rating
+                                name="half-rating-seguranca"
+                                defaultValue={0}
+                                precision={0.5}
                                 value={value6}
                                 onChange={(event, newValue) => {
                                     setValue6(newValue);
@@ -194,10 +194,10 @@ export default function RatingPage() {
                             <Typography component="legend" >Banho</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Rating 
-                                name="half-rating-banho" 
-                                defaultValue={0} 
-                                precision={0.5} 
+                            <Rating
+                                name="half-rating-banho"
+                                defaultValue={0}
+                                precision={0.5}
                                 value={value7}
                                 onChange={(event, newValue) => {
                                     setValue7(newValue);
@@ -207,10 +207,10 @@ export default function RatingPage() {
                     </Grid>
                 </Box>
 
-                
+
 
                 <Typography>Comentários Recentes</Typography>
-                
+
                 <Box className={classes.commit}>
                     <Paper elevation={3}>
                         <Typography>

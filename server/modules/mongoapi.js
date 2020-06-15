@@ -102,15 +102,13 @@ class MongoAPI {
         return Boolean(result);
     }
 
-    async findUser (token) {
+    async findUser (query) {
         let client = await this.getConnection();
         if(!client) return null;
 
         let user = await client.db('postoCerto')
             .collection('users')
-            .findOne({
-                _id : ObjectID(token)
-            });
+            .findOne(query);
 
         return user;
     }

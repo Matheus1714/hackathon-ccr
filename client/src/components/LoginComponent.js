@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -10,6 +10,9 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Skeleton from '@material-ui/lab/Skeleton';
+
+import {login} from '../api/login';
+import {register} from '../api/register';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,68 +34,98 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Login() {
-  const classes = useStyles();
+async function handleLogin(user,pass,handler){
+    let logged = await login(user,pass);
+    if (logged){
+        handler();
+    }
+}
 
-  return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-      <Skeleton variant="rect" width={300} height={300} />
-        <Typography component="h1" variant="h5">
-          Entrar
-        </Typography>
-        <form className={classes.form} noValidate>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="user"
-            label="Nome de Usuário"
-            name="user"
-            autoComplete="user"
-            autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Senha"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Lembrar"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            href="/home"
-          >
-            Entrar
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="/forguet" variant="body2">
-                Esqueceu sua senha?
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link href="/signup" variant="body2">
-                {"Não tem uma senha? Cadastre-se"}
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
-    </Container>
-  );
+async function handleRegister(user,pass,handler){
+    let logged = await register(user,pass);
+    if (logged){
+        handler();
+    }
+}
+
+export default function Login(props) {
+    const classes = useStyles();
+
+    let handler = props.handler;
+
+    const [mode, setMode] = useState('login');
+    const [user, setUser] = useState('');
+    const [pass, setPass] = useState('');
+
+    return (
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Skeleton variant="rect" width={300} height={300} />
+                <Typography component="h1" variant="h5">
+                    {mode === 'login' ? 'Entrar' : 'Cadastro'}
+                </Typography>
+                <form className={classes.form} noValidate>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="user"
+                        label="Nome de Usuário"
+                        name="user"
+                        autoComplete="user"
+                        autoFocus
+                        value={user}
+                        onChange={(event) => setUser(event.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Senha"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                        value={pass}
+                        onChange={(event) => setPass(event.target.value)}
+                    />
+                    {mode === 'login' ?
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                            onClick={() => handleLogin(user,pass,handler)}
+                        >
+                            Entrar
+                        </Button> :
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                            onClick={() => handleRegister(user,pass,handler)}
+                        >
+                            Registrar
+                        </Button>
+                    }
+                    <Grid container>
+                        <Grid item>
+                            {mode === 'login' ?
+                                <Link href='#' onClick={() => setMode('register')} variant="body2">
+                                    Não tem uma senha? Cadastre-se
+                                </Link> :
+                                <Link href='#' onClick={() => setMode('login')} variant="body2">
+                                    Voltar para o login
+                                </Link>
+                            }
+                        </Grid>
+                    </Grid>
+                </form>
+            </div>
+        </Container>
+    );
 }

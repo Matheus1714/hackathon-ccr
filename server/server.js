@@ -183,7 +183,7 @@ app.post('/login/', async (req,res) => {
     let user = await mongo.login(req.body.username, req.body.password);
 
     if (user){
-        let token = user.__id.toString();
+        let token = user._id.toString();
         res.cookie('c_user', token, {
             httpOnly : true,
             expires : new Date (Date.now() + 1000*60*60*24*30) // 30 days
@@ -199,6 +199,12 @@ app.post('/login/', async (req,res) => {
     return : bool indicating successful register
 */
 app.post('/register/', async (req,res) => {
+    let user = await mongo.findUser({
+        user : req.body.username
+    });
+
+    if (user) return res.json(false);
+
     let userId = await mongo.register(req.body.username, req.body.password);
     let token = userId.toString();
 

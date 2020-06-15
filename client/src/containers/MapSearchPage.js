@@ -1,47 +1,28 @@
-import React, { Component, createRef } from 'react'
+import React, {Component, createRef} from 'react'
+import PropTypes from 'prop-types';
+
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/styles';
-import ComboxBox from '../components/ComboBox'
 import Tabs from '@material-ui/core/Tabs';
-import {getNearbyPost} from '../api/getNearbyPosts'
 import Tab from '@material-ui/core/Tab';
 import RatingPage from './RatingPage'
 import TabsComponent from '../components/TabsComponent'
 
+import {getNearbyPost} from '../api/getNearbyPosts'
+import {isLoggedIn} from '../api/isLoggedIn'
 
-const styles = theme => ({
-    paper: {
-      marginTop: 8,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    submit: {
-      margin: 3,
-    },
-    barSearch: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 12
-    },
-    tab: {
-        minWidth: 100,
-        width: 100,
-    },
-    positionTab: {
-        position: 'relative',
-        top: -200
-    }
-});
+import ComboxBox from '../components/ComboBox'
+import LoginComponent from '../components/LoginComponent';
+
+const styles = require('../styles');
 
 class MapNearbyPostsData extends Component{
     mapRef = createRef()
+
     constructor(props){
         super(props)
-        this.state={
+        this.state = {
             map: null,
             data_autocomplete: null,
             value: '',
@@ -58,16 +39,18 @@ class MapNearbyPostsData extends Component{
         }
         this.handleChange = this.handleChange.bind(this);
     }
+
     handleChange = (event, newValue) => {
         this.setState({value: newValue})
         this.props.history.push(newValue);
     };
-    async mapHender(lat, lng){
-        const data = await getNearbyPost({ 
-            "lat": lat, 
-            "lng": lng 
-        })
 
+    async checkLogin (){
+        let logged = await isLoggedIn();
+        return logged;
+    }
+
+    async mapRender(lat, lng){
         const H = window.H;
         const platform = new H.service.Platform({
             apikey: "FL2PLn-xzRt2qw8dmRMRtVHupxL1zw3zBK29yafb7NA"
@@ -79,8 +62,8 @@ class MapNearbyPostsData extends Component{
             this.mapRef.current,
             defaultLayers.vector.normal.map,
             {
-                center: { 
-                    "lat": lat, 
+                center: {
+                    "lat": lat,
                     "lng": lng
                 },
                 zoom: 15,
@@ -101,13 +84,17 @@ class MapNearbyPostsData extends Component{
 
         map.addObject(group);
 
+        const data = await getNearbyPost({
+            "lat": lat,
+            "lng": lng
+        })
+
         group.addEventListener('tap', function (evt) {
             let bubble =  new H.ui.InfoBubble(evt.target.getGeometry(), {
                 content: evt.target.getData()
             });
             ui.addBubble(bubble);
         }, false);
-
         let n = data.length
         let points = []
         for(let i = 0 ; i < n ; i++ ){
@@ -135,7 +122,7 @@ class MapNearbyPostsData extends Component{
                 </center>
             `
             , H);
-            
+
         }
         let container = new H.map.Group({
             objects: points
@@ -145,16 +132,36 @@ class MapNearbyPostsData extends Component{
 
         this.setState({ map });
     }
-    componentDidMount(){
-        navigator.geolocation.getCurrentPosition(position => {
-            this.mapHender(position.coords.latitude, position.coords.longitude)
-            this.setState({ pos: {
-                lat: position.coords.latitude, 
-                lng: position.coords.longitude
-            }});
-            }, err => console.log(err)
-        );
+    async componentDidMount(){
+        let logged = await this.checkLogin();
+        this.setState({
+            page : logged ? 'map' : 'login'
+        });
+        if(this.state.page === 'map'){
+            navigator.geolocation.getCurrentPosition(position => {
+                this.mapRender(position.coords.latitude, position.coords.longitude)
+                this.setState({ pos: {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                }});
+                }, err => console.log(err)
+            );
+        }
     }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.page === 'map' && prevState.page === 'login'){
+            navigator.geolocation.getCurrentPosition(position => {
+                this.mapRender(position.coords.latitude, position.coords.longitude)
+                this.setState({ pos: {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                }});
+                }, err => console.log(err)
+            );
+        }
+    }
+
     componentWillUnmount() {
         this.state.map.dispose();
     }
@@ -166,36 +173,53 @@ class MapNearbyPostsData extends Component{
     }
     render(){
         const { classes } = this.props;
+
+        if (!this.state.page){
+            return (null)
+        }
+        else if (this.state.page === 'map'){
             return(
                 <Container component="main" maxWidth="xs">
                     <CssBaseline  />
-                        <div className={classes.barSearch}>
-                            <div className={classes.centerBox}>
-                                <ComboxBox map={this.state.map} pos={this.state.pos} />
-                            </div>
+                    <div className={classes.paper} >
+                        <div ref={this.mapRef} style={{ width: "400px", height: "730px" }} />
+                    </div>
+                    <div className={classes.barSearch}>
+                        <div className={classes.centerBox}>
+                            <ComboxBox map={this.state.map} />
                         </div>
-                        <div className={classes.paper} >
-                            <div ref={this.mapRef} style={{ width: "400px", height: "730px" }} />
-                        </div>
-                        
-                        <div className={classes.positionTab}>
+                    </div>
+                    <div className={classes.positionTab}>
                         {
                             (() => {
                                 if(this.state.value !== null){
                                     return (
-                                        <TabsComponent/>
+                                        <Tabs
+                                            value={this.state.value}
+                                            onChange={this.handleChange}
+                                            variant="fullWidth"
+                                            indicatorColor="secondary"
+                                            textColor="secondary"
+                                        >
+                                            <Tab classes={{root: classes.tab}} label="Home" value="/home" />
+                                            <Tab classes={{root: classes.tab}} label="Perfil" value="profile" />
+                                            <Tab classes={{root: classes.tab}} label="Ranking" value="ranking" />
+                                        </Tabs>
                                     )
                                 }else{
                                     return <h1>Null Value Tab</h1>
                                 }
                             })()
                         }
-                        </div>
-                        
+                    </div>
                 </Container>
-            )    
-        
-            
+            )
+        }
+        else if (this.state.page === 'login'){
+            return (
+                <LoginComponent handler={() => this.setState({page : 'map'})}/>
+            )
+        }
     }
 }
 
