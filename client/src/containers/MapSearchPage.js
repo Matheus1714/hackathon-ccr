@@ -25,6 +25,7 @@ const styles = theme => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: 12
     },
     tab: {
         minWidth: 100,
