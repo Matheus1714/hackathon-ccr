@@ -4,6 +4,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
 import {getAutocomplete} from '../api/getAutocomplete'
 
+
 const useStyles = makeStyles((theme) => ({
     centerButton: {
         display: 'flex',
@@ -20,8 +21,8 @@ export default function ComboBox(props) {
         // if(data_autocomplete !== null){
             const H = window.H;
             let point = new H.map.Marker({ 
-                "lat": -3.7928894, 
-                "lng": -38.495494099999995 
+                "lat": props.state.pos.lat, 
+                "lng": props.state.pos.lng 
             });
             props.map.addObject(point);
         // }
@@ -34,7 +35,7 @@ export default function ComboBox(props) {
                 options={top100Films}
                 getOptionLabel={(option) => option.title}
                 onChange={(event, value) => markLocation(value)}
-                style={{ width: 300 }}
+                style={{ width: 402 }}
                 renderInput={(params) => <TextField {...params} label="Search" variant="outlined" />}
             />
         </div>

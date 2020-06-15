@@ -7,6 +7,9 @@ import ComboxBox from '../components/ComboBox'
 import Tabs from '@material-ui/core/Tabs';
 import {getNearbyPost} from '../api/getNearbyPosts'
 import Tab from '@material-ui/core/Tab';
+import RatingPage from './RatingPage'
+import TabsComponent from '../components/TabsComponent'
+
 
 const styles = theme => ({
     paper: {
@@ -21,12 +24,7 @@ const styles = theme => ({
     barSearch: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
-    },
-    centerBox: {
-        position: 'relative',
-        top: -700,
-        left: -15
+        justifyContent: 'center',
     },
     tab: {
         minWidth: 100,
@@ -46,7 +44,6 @@ class MapNearbyPostsData extends Component{
             map: null,
             data_autocomplete: null,
             value: '',
-            nearby: true,
             balloon: {
                 event: null,
                 data: null
@@ -55,6 +52,8 @@ class MapNearbyPostsData extends Component{
                 lat: null,
                 lng: null
             },
+            isForm: false,
+            dataFrom: null
         }
         this.handleChange = this.handleChange.bind(this);
     }
@@ -97,7 +96,7 @@ class MapNearbyPostsData extends Component{
         // This variable is unused
         const ui = H.ui.UI.createDefault(map, defaultLayers);
 
-        let group = new H.map.Group();
+        let group = new H.map.Group()
 
         map.addObject(group);
 
@@ -107,7 +106,7 @@ class MapNearbyPostsData extends Component{
             });
             ui.addBubble(bubble);
         }, false);
-        console.log(data)
+
         let n = data.length
         let points = []
         for(let i = 0 ; i < n ; i++ ){
@@ -116,6 +115,7 @@ class MapNearbyPostsData extends Component{
                 lng:data[i].position.lng
             })
             points.push(point)
+
             this.addMarkerToGroup(group, {
                 lat:data[i].position.lat,
                 lng:data[i].position.lng
@@ -130,6 +130,7 @@ class MapNearbyPostsData extends Component{
                     <span>Preço Comida ${data[i].ratings.foodprice.mean || 0}</span>
                     <span>Segurança ${data[i].ratings.security.mean || 0}</span>
                     <span>Banho ${data[i].ratings.bath.mean || 0}</span>
+                    <a href="/rating"><button>Avaliar</button></a>
                 </center>
             `
             , H);
@@ -164,43 +165,35 @@ class MapNearbyPostsData extends Component{
     }
     render(){
         const { classes } = this.props;
-        return(
-            <Container component="main" maxWidth="xs">
-                <CssBaseline  />
-                    <div className={classes.paper} >
-                        <div ref={this.mapRef} style={{ width: "400px", height: "730px" }} />
-                    </div>
-                    <div className={classes.barSearch}>
-                        <div className={classes.centerBox}>
-                            <ComboxBox map={this.state.map} />
+            return(
+                <Container component="main" maxWidth="xs">
+                    <CssBaseline  />
+                        <div className={classes.barSearch}>
+                            <div className={classes.centerBox}>
+                                <ComboxBox map={this.state.map} pos={this.state.pos} />
+                            </div>
                         </div>
-                    </div>
-                    <div className={classes.positionTab}>
-                    {
-                        (() => {
-                            if(this.state.value !== null){
-                                return (
-                                    <Tabs
-                                        value={this.state.value}
-                                        onChange={this.handleChange}
-                                        variant="fullWidth"
-                                        indicatorColor="secondary"
-                                        textColor="secondary"
-                                    >
-                                        <Tab classes={{root: classes.tab}} label="Home" value="/home" />
-                                        <Tab classes={{root: classes.tab}} label="Perfil" value="profile" />
-                                        <Tab classes={{root: classes.tab}} label="Ranking" value="ranking" />
-                                    </Tabs>
-                                )
-                            }else{
-                                return <h1>Null Value Tab</h1>
-                            }
-                        })()
-                    }
-                    </div>
-                    
-            </Container>
-        )
+                        <div className={classes.paper} >
+                            <div ref={this.mapRef} style={{ width: "400px", height: "730px" }} />
+                        </div>
+                        
+                        <div className={classes.positionTab}>
+                        {
+                            (() => {
+                                if(this.state.value !== null){
+                                    return (
+                                        <TabsComponent/>
+                                    )
+                                }else{
+                                    return <h1>Null Value Tab</h1>
+                                }
+                            })()
+                        }
+                        </div>
+                        
+                </Container>
+            )    
+        
             
     }
 }
